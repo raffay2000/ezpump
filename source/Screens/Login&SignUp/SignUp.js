@@ -54,12 +54,6 @@ class SignUp extends Component{
                             </Text>
                         </TouchableOpacity>
                     </View>
-                    {/* {
-                        formToggle?
-                            <SingUp_Company navigation = {navigation} />
-                            :
-                            <SingUp_Pump navigation = {navigation} />
-                    } */}
                     <RegistrationDetails  navigation = {navigation} userType={userType} />
                 </View>
            </ScrollView>

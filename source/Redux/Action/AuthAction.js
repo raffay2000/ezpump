@@ -12,6 +12,9 @@ import {
     REGISTER_STEP_TWO,
     REGISTER_STEP_TWO_DONE,
     SET_DESCRIPTION,
+    SET_ADDRESS,
+    SET_LAT,
+    SET_LNG,
     SET_EMAIL,
     SET_NAME,
     SET_PASSWORD,
@@ -39,7 +42,6 @@ export const login = (email, password, context) => {
         });
         fetchAPI('post','login', data)
         .then((res)=>{
-            // console.log(res.status)
             if(res.data.user){
                 loginDone(dispatch, "Login Successful", res.data.user);
                 setItem("user", JSON.stringify(res.data.user));
@@ -50,20 +52,16 @@ export const login = (email, password, context) => {
             }
         })
         .catch((err,res)=>{
-            console.log("res",res)
-            if(err.message == "Request failed with status code 422"){
-                loginDone(dispatch, "Email must be valid.")
-            }else if(err.message == "Request failed with status code 401"){
-                // if(){
-
-                // }
-                loginDone(dispatch, "Credentials not matched")
+            if (parseInt(err.response.status) === 422) {
+                Object.values(err.response.data.errors).map((v, k) => (
+                    loginDone(dispatch, v)
+                ))
+            }else if(parseInt(err.response.status) === 401){
+                loginDone(dispatch, err.response.data.message)
             }else{
                 loginDone(dispatch, "Something went wrong.")
             }
-
         })
-        // return console.log(email, password, context)
     }
 }
 const loginDone = (dispatch, message, user, token) => {
@@ -123,7 +121,7 @@ export const registerStepOne = () => {
         dispatch({
             type: REGISTER_STEP_ONE
         });
-        var data = new FormData();
+        let data = new FormData();
         data.append('email', email);
         data.append('password', password);
         data.append('phone_number', phone);
@@ -144,8 +142,13 @@ export const registerStepOne = () => {
             }
         })
         .catch(function (error) {
-            console.log(error);
-            registerStepOneDone(dispatch, "Some Problem Occurred out side server")
+            if (parseInt(error.response.status) === 422) {
+                Object.values(error.response.data.errors).map((v, k) => (
+                    registerStepOneDone(dispatch, v)
+                ))
+            }else{
+                registerStepOneDone(dispatch, "Some Problem Occurred out side server")
+            }
         });
 
     }
@@ -157,15 +160,13 @@ const registerStepOneDone = (dispatch, message) => {
         type: REGISTER_STEP_ONE_DONE,
     })
 }
-export const registerStepTwo = (ImgSrc
-    ) => {
+export const registerStepTwo = (ImgSrc) => {
     return function(dispatch, getState){
-        const {name,username,description,website,userType,email,password,phone,isCheck} = getState().globalReducer;
-        console.log("this is from Redux ====> ","email",email,"password", password,"phone", phone,"CompanyName",name,"userName",username,"description",description,"website",website,"is_agree",isCheck,"userType",userType)
-        dispatch({
-            type: REGISTER_STEP_TWO
-        });
-        var data = new FormData();
+        const {name, username, description, address, lat, lng, website, userType, email, password, phone, isCheck} = getState().globalReducer;
+
+        dispatch({type: REGISTER_STEP_TWO});
+
+        let data = new FormData();
         data.append('user_type', userType ? "company" : "pump");
         data.append('company_name', name);
         data.append('user_name', username);
@@ -174,12 +175,16 @@ export const registerStepTwo = (ImgSrc
         data.append('phone_number', phone);
         data.append('cover_image', ImgSrc);
         data.append('description', description);
+        data.append('address', address);
+        data.append('lat', lat);
+        data.append('lng', lng);
         data.append('website', website);
         data.append('is_agree', isCheck ? '1' : '0');
 
+        console.log("Form data ===============>", data);
+
         fetchAPI('post', 'register-step-two', data)
         .then(function (response) {
-            // console.log(JSON.stringify(response.data));
             registerStepTwoDone(dispatch, response.data.message)
             if(response.data.message == "User successfully created."){
                 // dispatch({type: REGISTER_SUCCESS})
@@ -188,15 +193,17 @@ export const registerStepTwo = (ImgSrc
             }else if(response.data.error){
                 registerStepTwoDone(dispatch, response.error.company_name[0])
             }else{
-            registerStepTwoDone(dispatch, "Some Problem Occurred inside server")
-
+                registerStepTwoDone(dispatch, "Some Problem Occurred inside server")
             }
-        })
-        .catch(function (error) {
-            console.log(error);
-            registerStepTwoDone(dispatch, "Some Problem Occurred outside server" )
+        }).catch(function (error) {
+            if (parseInt(error.response.status) === 422) {
+                Object.values(error.response.data.errors).map((v, k) => (
+                    registerStepOneDone(dispatch, v)
+                ))
+            }else{
+                registerStepOneDone(dispatch, "Some Problem Occurred out side server")
+            }
         });
-
     }
 }
 
@@ -206,6 +213,7 @@ const registerStepTwoDone = (dispatch, message) => {
         type: REGISTER_STEP_TWO_DONE,
     })
 }
+
 export const verifyOtp = (otp) => {
     return function(dispatch, getState){
         const {email} = getState().globalReducer;
@@ -284,7 +292,6 @@ const resendOtpDone = (dispatch, message) => {
     })
 }
 
-
 export const toggleUserType = (userType) => {
     return{
         type: SET_USER_TYPE,
@@ -292,41 +299,66 @@ export const toggleUserType = (userType) => {
     }
 }
 
-
 export const setEmail = (email) => {
     return{
         type: SET_EMAIL,
         email
     }
 }
+
 export const setName = (name) => {
     return{
         type: SET_NAME,
         name
     }
 }
+
 export const setPhone = (phone) => {
     return{
         type: SET_PHONE,
         phone
     }
 }
+
 export const setUsername = (username) => {
     return{
         type: SET_USERNAME,
         username
     }
 }
+
 export const setPassword = (password) => {
     return{
         type: SET_PASSWORD,
         password
     }
 }
+
 export const setDescription = (description) => {
     return{
         type: SET_DESCRIPTION,
         description
+    }
+}
+
+export const setAddress = (address) => {
+    return{
+        type: SET_ADDRESS,
+        address
+    }
+}
+
+export const setLat = (lat) => {
+    return{
+        type: SET_LAT,
+        lat
+    }
+}
+
+export const setLng = (lng) => {
+    return{
+        type: SET_LNG,
+        lng
     }
 }
 
@@ -336,10 +368,10 @@ export const setWebsite = (website) => {
         website
     }
 }
+
 export const setIsCheck = (isCheck) => {
     return{
         type: SET_IS_CHECK,
         isCheck
     }
 }
-

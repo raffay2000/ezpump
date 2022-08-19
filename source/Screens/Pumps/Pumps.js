@@ -74,7 +74,8 @@ class Pumps extends Component{
                     {/* <View style={{width:"95%", alignSelf:"center", height:hp("0.05%"), backgroundColor:primary, marginTop:hp("3%")}} /> */}
                         <View style={{borderBottomWidth:0.5, borderColor: 'gray', paddingBottom: hp('2%')}}>
                             <Text style={styles.Txt} >Add new pump</Text>
-                            <TouchableOpacity activeOpacity={0.8} style={styles.Add} onPress={this.onAddPumpPress}>
+                            {/*onPress={this.onAddPumpPress}*/}
+                            <TouchableOpacity activeOpacity={0.8} style={styles.Add} >
                                 <Entypo name="plus" color={secondary} size={hp("5%")} />
                             </TouchableOpacity>
                         </View>

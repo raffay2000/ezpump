@@ -40,7 +40,7 @@ class Account extends Component{
         this.state = {
             user:[],
             ReviewObj:[],
-
+            avg_review: 0,
         }
     }
      componentDidMount(){
@@ -48,12 +48,12 @@ class Account extends Component{
      }
     callData = async()=>{
         const token = await getToken();
-        console.log(token)
         try {
             fetchAPI('GET','get-profile-info',null,token)
             .then((res)=>{
                 this.setState({user:res?.data?.profile})
                 this.setState({ReviewObj:res?.data?.profile?.get_reviews})
+                this.setState({avg_review:res?.data?.profile?.get_avg_review?.[0].avg_rating})
                 console.log(this.state?.user)
             })
             .catch((err)=>{
@@ -132,32 +132,6 @@ class Account extends Component{
                             )
                         })
                     }
-                    
-
-                    {/* <Reviews
-                        NameTxt={"Kevin Pump Co."}
-                        Review={"2.7"}
-                        Review_Description={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy"}
-                    />
-
-                    <Reviews
-                        NameTxt={"Kevin Pump Co."}
-                        Review={"2.7"}
-                        Review_Description={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy"}
-                    />
-
-                    <Reviews
-                        NameTxt={"Kevin Pump Co."}
-                        Review={"2.7"}
-                        Review_Description={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy"}
-                    />
-
-                    <Reviews
-                        NameTxt={"Kevin Pump Co."}
-                        Review={"2.7"}
-                        Review_Description={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy"}
-                    /> */}
-
                     <View style={{height:hp("5%")}} />
                 </ScrollView>
             </View>
@@ -165,13 +139,12 @@ class Account extends Component{
       };
 
     renderTitle = () => {
-        const {company_name} = this.state.user;
-        // console.log("userType", user_type);
+        const {user, avg_review} = this.state;
         return (
             <>
-                <Text style={styles.NameTxt} >{company_name}</Text>
+                <Text style={styles.NameTxt} >{user.company_name}</Text>
                 <View style={{flexDirection:"row", alignItems:"center",justifyContent:"center"}} >
-                    <Text style={styles.RateTxt} >4.9/5</Text>
+                    <Text style={styles.RateTxt} >{avg_review}/5</Text>
                     <FontAwesome name="star" color={"#BCD221"} size={hp("2.5%")} />
                 </View>
             </>

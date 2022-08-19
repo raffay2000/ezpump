@@ -8,121 +8,48 @@ import {
     ScrollView,
     LogBox
 } from "react-native";
-import {heightPercentageToDP as hp, widthPercentageToDP, widthPercentageToDP as wp} from "react-native-responsive-screen";
+import {heightPercentageToDP as hp, widthPercentageToDP} from "react-native-responsive-screen";
 import {InputComponent} from "../../ScreenComponent/TextInput";
 import Toast from "react-native-toast-message";
 import SnackBar from "../../ScreenComponent/common/SnackBar";
 import { light } from "../../assets/fonts";
 import { primary, secondary } from "../../assets/colors";
 import { connect } from "react-redux";
-import { setDescription, setName, setUsername,registerStepTwo,setPhone,setEmail,setPassword,setWebsite,toggleUserType,setIsCheck } from "../../Redux/Action/AuthAction";
+import { setDescription, setAddress, setLat, setLng, setName, setUsername,registerStepTwo,setPhone,setEmail,setPassword,setWebsite,toggleUserType,setIsCheck } from "../../Redux/Action/AuthAction";
 import {launchImageLibrary} from 'react-native-image-picker';
-// import AutoComplete from "../../ScreenComponent/common/AutoComplete";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-class AutoComplete extends Component {
-    constructor(props){
-        super(props);
-        this.state={
-            region:{
-                latitude: 37.80000,
-                longitude: -122.4324,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-            },
-            desp:"",
-        }
 
-    }
-    render(){
-    return(
-        <View >
-        <GooglePlacesAutocomplete
-        styles={{
-            container:{
-            flex:0,
-                width:widthPercentageToDP("100%"),
-                // zIndex:2,
-                position:'relative',
-                padding:widthPercentageToDP("6%"),
-            },
-            listView:{
-                backgroundColor:'#fff',
-            }
-            }}
-        placeholder={"Enter Your Address"}
-        fetchDetails={true}
-        onPress={async(data, details = null) => {
-            // 'details' is provided when fetchDetails = true
-            console.log(data, details);
-            // this.setState({desp:data.description})
-            // console.log("Description",data.description);
-            // this.setState({region:{
-            //     latitude:details.geometry.location.lat,
-            //     longitude:details.geometry.location.lng,
-            //     latitudeDelta: 0.0922,
-            //     longitudeDelta: 0.0421,
-            // }
-            // })
-            
-        }}
-        // listViewDisplayed={'auto'}
-        // renderDescription={row => row.description} // custom description render
-        query={{
-            key: 'AIzaSyA-BHlG4dOA1CxtzZoTal7e_feMEAe8Fqc',
-            language: 'en',
-            components:"country:us",
-            types:"establishment",
-            location: `${this.state.region.latitude},${this.state.region.longitude}`
-        }}
-        />
-        </View>
-
-    )
-    }
-}
- class Register extends Component{
+class Register extends Component{
    
     constructor(props){
         super(props);
         this.state={
             ImageSource:"",
             website_name:"",
-            error:false,
-            region:{
-                latitude: 37.80000,
-                longitude: -122.4324,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-            },
-            desp:"",
-            // username:"",
-            // CompanyName:"",
-            // Description:""
+            error:false
         }
 
     }
+
+    setMapLocation = async (data, details = null) => {
+        this.props.setAddress(data.description);
+        this.props.setLat(details.geometry.location.lat);
+        this.props.setLng(details.geometry.location.lng);
+    }
     
     Register_Now = async() => {
-        const {username, name, description} = this.props;
+        const {username, name, description, address} = this.props;
         const {ImageSource} = this.state;
-        if(
-            username == "" ||
-            name == "" ||
-            description == ""||
-            ImageSource == ""
-            ){
-                this.setState({error:true})
-                Toast.show({text1: "Please fill all fields"})
-            }
-            else{
-                await this.props.registerStepTwo(ImageSource);
+        if(username == "" || name == "" || description == ""|| ImageSource == "" || address == ""){
+            this.setState({error:true});
+            Toast.show({text1: "Please fill all fields"});
+        } else{
+            await this.props.registerStepTwo(ImageSource);
             try {
                 console.log("Api Is Hitting");
-                } catch (error) {
-                    console.log(error);
-                }
-                    
-            
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
     
@@ -151,20 +78,21 @@ class AutoComplete extends Component {
             }
           });
     }
-componentDidMount(){
+
+    componentDidMount(){
     LogBox.ignoreLogs(["VirtualizedLists should never be nested"])
 
 }
+
     render(){
-        const {username, name, description,website} = this.props;
-        // const [region, setRegion] = useState({
-        //     latitude: 37.80000,
-        //     longitude: -122.4324,
-        //     latitudeDelta: 0.0922,
-        //     longitudeDelta: 0.0421,
-        // })
+        const {username, name, description, website} = this.props;
         return(
-           <ScrollView style={{flex:1, backgroundColor:primary, padding:hp("2%") }} >
+           <ScrollView
+               // horizontal={true}
+               nestedScrollEnabled={true}
+               keyboardShouldPersistTaps='handled'
+               contentContainerStyle={{ flexGrow: 1 }}
+               style={{flex:1, backgroundColor:primary, padding:hp("2%") }} >
                 <View style={styles.main}> 
                     <Image source={require("../../assets/images/logo.png")} style={{width:hp("25%"), height:hp("20%"), marginTop:hp("7%") }} />
                     <Text style={[styles.Txt, {letterSpacing:4, fontSize:hp("2.8%"), alignSelf:"center", lineHeight:hp("3%")}]} > REGISTRATION </Text>
@@ -212,14 +140,32 @@ componentDidMount(){
                             {this.state.ImageSource == "" ? "Select Image" : `Change Image`}
                         </Text>
                     </TouchableOpacity>
-                    <Text style={styles.Txt}>Address{this.state.desp}{this.state.region.latitude}</Text>
-                    {/* <AutoComplete
-                    // placeholder={this.state.desp}
-                    desp={this.state.desp}
-                    setdesp={()=>this.setState({desp:this.state.desp})}
-                    region={this.state.region} 
-                    setRegion={()=>setRegion({region:this.state.region})}/> */}
-                    <AutoComplete/>
+                    <GooglePlacesAutocomplete
+                        styles={{
+                            container:{
+                                flex:0,
+                                width:widthPercentageToDP("100%"),
+                                zIndex:2,
+                                position:'relative',
+                                padding:widthPercentageToDP("6%"),
+                            },
+                            listView:{
+                                backgroundColor:'#fff',
+                            }
+                        }}
+                        placeholder={"Enter Your Address"}
+                        fetchDetails={true}
+                        onPress={async(data, details = null) => {
+                            await this.setMapLocation(data, details);
+                        }}
+                        query={{
+                            key: 'AIzaSyA-BHlG4dOA1CxtzZoTal7e_feMEAe8Fqc',
+                            language: 'en',
+                            components:"country:us",
+                            types:"establishment",
+                            location: `${this.state.lat},${this.state.lng}`
+                        }}
+                    />
                     <View style={{alignSelf:"flex-start",marginTop:10}}>
                     {
                         this.state.ImageSource != "" ? (<Image source={{uri:this.state.ImageSource}} style={{height:50,width:50}} />) : null
@@ -241,7 +187,6 @@ componentDidMount(){
                     />
                     {this.state.error ? !description?<Text style={{color:"red",alignSelf:"flex-start"}}>Enter Description</Text>: null:null}
                     <TouchableOpacity style={styles.btn} onPress={this.Register_Now} >
-                    {/* <TouchableOpacity style={styles.btn} onPress={()=> this.props.navigation.navigate("App_Route", {Type:"Comapny"})} > */}
                         <Text style={[styles.Txt, {marginTop:0 , alignSelf:"center", fontSize:hp("2.6%"), lineHeight:hp("2.8%")}]} >
                             FINISH
                         </Text>
@@ -260,6 +205,9 @@ const mapStateToProps = state => {
         name: state.globalReducer.name,
         username: state.globalReducer.username,
         description: state.globalReducer.description,
+        address: state.globalReducer.address,
+        lat: state.globalReducer.lat,
+        lng: state.globalReducer.lng,
         website: state.globalReducer.website,
         phone: state.globalReducer.phone,
         email: state.globalReducer.email,
@@ -273,6 +221,9 @@ const mapDispatchToProps = dispatch => {
         setName: (text) => dispatch(setName(text)),
         setUsername: (text) => dispatch(setUsername(text)),
         setDescription: (text) => dispatch(setDescription(text)),
+        setAddress: (text) => dispatch(setAddress(text)),
+        setLat: (text) => dispatch(setLat(text)),
+        setLng: (text) => dispatch(setLng(text)),
         setPhone: (text) => dispatch(setPhone(text)),
         setEmail: (text) => dispatch(setEmail(text)),
         setPassword: (text) => dispatch(setPassword(text)),

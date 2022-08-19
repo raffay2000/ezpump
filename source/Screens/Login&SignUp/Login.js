@@ -35,9 +35,9 @@ class Login extends Component{
     onLoginPress=()=> {
         const { email, password } = this.state;
         const { login } = this.props;
-        if(!email || !password){
-            return Toast.show({text1: "Enter Email and Password"})
-        }
+        // if(!email || !password){
+        //     return Toast.show({text1: "Enter Email and Password"})
+        // }
         return login(email, password, this.context)
 
 
@@ -132,21 +132,6 @@ class Login extends Component{
     }
 }
 
-// function mapStateToProps(state) {
-//     return{
-//         Loader: state.LoginReducer.Loader,
-//         Failed: state.LoginReducer.Failed,
-//         error: state.LoginReducer.error,
-//     }
-// }
-
-// function mapDispatchToProps(dispatch) {
-//     return{
-//         _LoginNow: (email, password)=> dispatch(IsLogin(email, password))
-//     }
-// }
-
-// export default connect(mapStateToProps, mapDispatchToProps)(Login)
 
 const mapStateToProps = (state) => {
     return{

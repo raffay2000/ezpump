@@ -29,7 +29,6 @@ class RegistrationDetails extends Component{
     
     
     onRegisterPress = async() => {
-        // console.log(this.props)
         const {email, phone, password,isCheck} = this.props;
         const {cPassword} = this.state;
         if( email == "" ||
@@ -119,7 +118,6 @@ class RegistrationDetails extends Component{
                         secureTextEntry:true,  
                         placeholder:"Confirm Password",
                         ref:ref=> {this.NextInput2 = ref;},
-                        // onSubmitEditing: this.onRegisterPress,
                     }}
                     mainstyle={{marginTop:hp("3%")}}
                     name={"ios-lock-closed"}
@@ -183,9 +181,7 @@ const styles = StyleSheet.create({
     main:{
         flex:1,
         width:"100%",
-        backgroundColor:primary,
-        // padding:hp("2%"),
-        // alignItems:"center"
+        backgroundColor:primary
     },  
     Txt:{
         fontSize:hp("2.5%"),
